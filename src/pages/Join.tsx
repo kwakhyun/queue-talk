@@ -1,10 +1,17 @@
 import styled from "@emotion/styled";
 import axios from "axios";
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import useSWR from "swr";
 import { useInput } from "../hooks/useInput";
+import { fetcher } from "../utils/fetcher";
 
 export const Join = () => {
+  const { data, error } = useSWR("http://localhost:3095/api/users", fetcher, {
+    dedupingInterval: 5000,
+  });
+
+  const navigate = useNavigate();
   const [email, onChangeEmail] = useInput("");
   const [nickname, onChangeNickname] = useInput("");
   const [password, onChangePassword] = useInput("");
@@ -18,20 +25,30 @@ export const Join = () => {
         return setMismatchError(true);
       }
       axios
-        .post("http://localhost:3001/api/users", {
+        .post("http://localhost:3095/api/users", {
           email,
           nickname,
           password,
         })
-        .then((res) => {
-          console.log(res);
+        .then(() => {
+          alert("회원가입이 완료되었습니다.");
+          navigate("/login");
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((error) => {
+          console.log(error);
+          alert("회원가입에 실패했습니다.");
         });
     },
-    [email, nickname, password, passwordCheck]
+    [email, nickname, password, passwordCheck, navigate]
   );
+
+  if (data) {
+    navigate("/");
+  }
+
+  if (error) {
+    alert("서버와 연결이 불안정합니다.");
+  }
 
   return (
     <StyledUserContainer>

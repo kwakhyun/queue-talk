@@ -1,31 +1,60 @@
 import axios from "axios";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import useSWR from "swr";
 import { useInput } from "../hooks/useInput";
+import { fetcher } from "../utils/fetcher";
 import { StyledUserContainer } from "./Join";
 
 export const Login = () => {
+  const { data, error, mutate } = useSWR(
+    "http://localhost:3095/api/users",
+    fetcher
+  );
+
+  const navigate = useNavigate();
   const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
-  const navigate = useNavigate();
 
   const onSubmit = useCallback(
     (e: { preventDefault: () => void }) => {
       e.preventDefault();
       axios
-        .post("http://localhost:3001/api/users/login", {
-          email,
-          password,
+        .post(
+          "http://localhost:3095/api/users/login",
+          {
+            email,
+            password,
+          },
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          mutate(response.data, false);
         })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
+        .catch((error) => {
+          const message = error.response.data;
+          if (message === "존재하지 않는 이메일입니다!") {
+            alert("가입되지 않은 이메일입니다.");
+          } else if (message === "비밀번호가 틀렸습니다.") {
+            alert("비밀번호가 틀렸습니다.");
+          } else {
+            alert("로그인에 실패했습니다.");
+          }
         });
     },
-    [email, password]
+    [email, password, mutate]
   );
+
+  if (data) {
+    navigate("/");
+  }
+
+  if (error) {
+    alert("서버와 연결이 불안정합니다.");
+  }
+
   return (
     <StyledUserContainer>
       <h1>OurTalk</h1>

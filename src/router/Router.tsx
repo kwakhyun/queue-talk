@@ -9,6 +9,7 @@ export const Router = () => {
       <Route path="/" element={<Main />} />
       <Route path="/join" element={<Join />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/main" element={<Main />} />
     </Routes>
   );
 };
