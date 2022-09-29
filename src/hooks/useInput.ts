@@ -15,8 +15,8 @@ export const useInput = <T = any>(
 ] => {
   const [value, setValue] = useState(initialData);
 
-  const handler = useCallback((e: any) => {
-    setValue(e.target.value);
+  const handler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value as unknown as T);
   }, []);
 
   return [value, handler, setValue];
