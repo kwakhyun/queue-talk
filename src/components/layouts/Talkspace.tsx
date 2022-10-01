@@ -14,18 +14,6 @@ import { InviteChannelModal } from "../modal/InviteChannelModal";
 
 export const Talkspace = ({ children }: PropsWithChildren) => {
   const { talkspace } = useParams<{ talkspace: string }>();
-
-  const {
-    data: userData,
-    error,
-    mutate,
-  } = useSWR("http://localhost:3095/api/users", fetcher);
-
-  const { data: channelData } = useSWR(
-    userData ? `http://localhost:3095/api/workspaces/lol/channels` : null,
-    fetcher
-  );
-
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [showCreateTalkspaceModal, setShowCreateTalkspaceModal] =
@@ -35,6 +23,24 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
   const [showTalkspaceModal, setShowTalkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+
+  const {
+    data: userData,
+    error,
+    mutate,
+  } = useSWR("http://localhost:3095/api/users", fetcher);
+
+  const { data: channelData } = useSWR(
+    userData
+      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
+      : null,
+    fetcher
+  );
+
+  const { mutate: memberMutate } = useSWR(
+    `http://localhost:3095/api/workspaces/${talkspace}/members`,
+    fetcher
+  );
 
   useEffect(() => {
     navigate("/lol/channel/일반");
@@ -114,7 +120,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
       </StyledHeader>
       <TalkspaceWrapper>
         <Talkspaces>
-          {userData.Workspaces?.map((item: ITalkspace) => {
+          {userData?.Workspaces.map((item: ITalkspace) => {
             return (
               <Link key={item.id} to={``}>
                 <TalkspaceButton>
@@ -144,7 +150,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
               </Menu>
             )}
             {channelData?.map((item: IChannel) => {
-              return <div>{item.name}</div>;
+              return <div key={item.id}>{item.name}</div>;
             })}
           </MenuScroll>
         </Channels>

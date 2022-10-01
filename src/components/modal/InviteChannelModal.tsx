@@ -6,7 +6,6 @@ import { Modal } from "./Modal";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
-import { channel } from "diagnostics_channel";
 
 interface IProps {
   show: boolean;

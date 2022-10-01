@@ -22,7 +22,7 @@ export const CreateChannelModal: FC<IProps> = ({
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput("");
 
   const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
-  const { mutate: channelMutate } = useSWR(
+  const { data: channelData, mutate: channelMutate } = useSWR(
     userData
       ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
       : null,
@@ -43,17 +43,17 @@ export const CreateChannelModal: FC<IProps> = ({
             withCredentials: true,
           }
         )
-        .then((response) => {
+        .then(() => {
           setShow(false);
           setNewChannel("");
-          channelMutate(response?.data, false);
+          channelMutate(channelData);
         })
         .catch((error) => {
           console.dir(error);
           toast.error(error.response?.data, { position: "bottom-center" });
         });
     },
-    [newChannel, talkspace, setShow, setNewChannel, channelMutate]
+    [newChannel, talkspace, setShow, setNewChannel, channelMutate, channelData]
   );
 
   return (

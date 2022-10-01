@@ -3,6 +3,8 @@ import { FC, useCallback } from "react";
 import { useInput } from "../../hooks/useInput";
 import { Modal } from "./Modal";
 import { toast } from "react-toastify";
+import useSWR from "swr";
+import { fetcher } from "../../utils/fetcher";
 
 interface IProps {
   show: boolean;
@@ -17,6 +19,11 @@ export const CreateTalkspace: FC<IProps> = ({
 }) => {
   const [newTalkspace, onChangeNewTalkspace, setNewTalkspace] = useInput("");
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput("");
+
+  const { data: userData, mutate } = useSWR(
+    "http://localhost:3095/api/users",
+    fetcher
+  );
 
   const onCreateTalkspace = useCallback(
     (e: { preventDefault: () => void }) => {
@@ -34,24 +41,25 @@ export const CreateTalkspace: FC<IProps> = ({
             withCredentials: true,
           }
         )
-        .then((response) => {
+        .then(() => {
           setShow(false);
           setNewTalkspace("");
           setNewUrl("");
+          mutate(userData);
         })
         .catch((error) => {
           console.dir(error);
           toast.error(error.response?.data, { position: "bottom-center" });
         });
     },
-    [newTalkspace, newUrl, setNewTalkspace, setNewUrl, setShow]
+    [newTalkspace, newUrl, setNewTalkspace, setNewUrl, setShow, mutate, userData]
   );
 
   return (
     <Modal show={show} onCloseModal={onCloseModal}>
       <form onSubmit={onCreateTalkspace}>
         <label id="workspace-label">
-          <span>워크스페이스 이름</span>
+          <span>채팅 주제 이름</span>
           <input
             name="workspace"
             type="text"
@@ -60,7 +68,7 @@ export const CreateTalkspace: FC<IProps> = ({
           />
         </label>
         <label id="workspace-url-label">
-          <span>워크스페이스 url</span>
+          <span>채팅 주제 url</span>
           <input
             name="workspace"
             type="text"
