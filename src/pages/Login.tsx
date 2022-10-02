@@ -48,7 +48,7 @@ export const Login = () => {
   );
 
   if (data) {
-    navigate("/");
+    navigate("/talkspace/sleact");
   }
 
   if (error) {

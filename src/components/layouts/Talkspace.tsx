@@ -1,16 +1,20 @@
 import styled from "@emotion/styled";
 import axios from "axios";
 import { PropsWithChildren, useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
 import gravatar from "gravatar";
-import { Menu } from "../Menu";
-import { IChannel, ITalkspace } from "../../typings/db";
+import { Menu } from "../menu/Menu";
+import { ITalkspace } from "../../typings/db";
 import { CreateChannelModal } from "../modal/CreateChannelModal";
 import { CreateTalkspace } from "../modal/CreateTalkspaceModal";
 import { InviteTalkspaceModal } from "../modal/InviteTalkspaceModal";
 import { InviteChannelModal } from "../modal/InviteChannelModal";
+import { ChannelList } from "../ChannelList";
+import { DMList } from "../DMList";
+import { Channel } from "../../pages/Channel";
+import { DM } from "../../pages/DM";
 
 export const Talkspace = ({ children }: PropsWithChildren) => {
   const { talkspace } = useParams<{ talkspace: string }>();
@@ -30,21 +34,9 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
     mutate,
   } = useSWR("http://localhost:3095/api/users", fetcher);
 
-  const { data: channelData } = useSWR(
-    userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
-      : null,
-    fetcher
-  );
-
-  const { mutate: memberMutate } = useSWR(
-    `http://localhost:3095/api/workspaces/${talkspace}/members`,
-    fetcher
-  );
-
-  useEffect(() => {
-    navigate("/lol/channel/일반");
-  }, [navigate]);
+  // useEffect(() => {
+  //   navigate("/dd/");
+  // }, [navigate]);
 
   const onLogout = useCallback(() => {
     axios
@@ -83,6 +75,10 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
     setShowCreateChannelModal(true);
   }, []);
 
+  const onClickInviteTalkspace = useCallback(() => {
+    setShowInviteTalkspaceModal(true);
+  }, []);
+
   if (userData === undefined) {
     return <div>로딩중...</div>;
   }
@@ -104,58 +100,69 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
                 show={showMenu}
                 onCloseModal={onClickUserProfile}
               >
-                <ProfileModal>
+                <StyledProfileModal>
                   <img
                     src={gravatar.url(userData?.email, { d: "retro" })}
                     alt={userData?.nickname}
                   />
                   <span id="profile-name">{userData?.nickname}</span>
                   <span id="profile-active">Active</span>
-                </ProfileModal>
-                <LogOutButton onClick={onLogout}>로그아웃</LogOutButton>
+                </StyledProfileModal>
+                <StyledLogOutButton onClick={onLogout}>
+                  로그아웃
+                </StyledLogOutButton>
               </Menu>
             )}
           </div>
         </StyledRightMenu>
       </StyledHeader>
-      <TalkspaceWrapper>
-        <Talkspaces>
+      <StyledTalkspaceWrapper>
+        <StyledTalkspaces>
           {userData?.Workspaces.map((item: ITalkspace) => {
             return (
               <Link key={item.id} to={``}>
-                <TalkspaceButton>
+                <StyledTalkspaceButton>
                   {item.name.slice(0, 1).toUpperCase()}
-                </TalkspaceButton>
+                </StyledTalkspaceButton>
               </Link>
             );
           })}
-          <AddButton onClick={onClickCreateTalkspace}>+</AddButton>
-        </Talkspaces>
-        <Channels>
-          <TalkspaceName onClick={toggleTalkspaceModal}>
+          <StyledAddButton onClick={onClickCreateTalkspace}>+</StyledAddButton>
+        </StyledTalkspaces>
+        <StyledChannels>
+          <StyledTalkspaceName onClick={toggleTalkspaceModal}>
             QueueTalk
-          </TalkspaceName>
-          <MenuScroll>
+          </StyledTalkspaceName>
+          <StyledMenuScroll>
             {showTalkspaceModal && (
               <Menu
                 style={{ top: 130, left: 70 }}
                 show={showTalkspaceModal}
                 onCloseModal={toggleTalkspaceModal}
               >
-                <TalkspaceModal>
-                  <h2>LOL</h2>
+                <StyledTalkspaceModal>
+                  <h2>dd</h2>
+                  <button onClick={onClickInviteTalkspace}>
+                    톡 스페이스에 유저 초대하기
+                  </button>
                   <button onClick={onClickAddChannel}>채널 생성</button>
                   <button onClick={onLogout}>로그아웃</button>
-                </TalkspaceModal>
+                </StyledTalkspaceModal>
               </Menu>
             )}
-            {channelData?.map((item: IChannel) => {
-              return <div key={item.id}>{item.name}</div>;
-            })}
-          </MenuScroll>
-        </Channels>
-        <Chats>채팅</Chats>
-      </TalkspaceWrapper>
+            <ChannelList />
+            <DMList />
+          </StyledMenuScroll>
+        </StyledChannels>
+
+        <StyledChatView>
+          <Routes>
+            <Route path="/channel/:channel" element={<Channel />} />
+            <Route path="/dm/:id" element={<DM />} />
+          </Routes>
+        </StyledChatView>
+
+      </StyledTalkspaceWrapper>
       {children}
       <CreateTalkspace
         show={showCreateTalkspaceModal}
@@ -200,7 +207,7 @@ export const StyledProfileImg = styled.img`
   border-radius: 25%;
 `;
 
-export const ProfileModal = styled.div`
+export const StyledProfileModal = styled.div`
   display: flex;
   padding: 20px;
   & img {
@@ -221,7 +228,7 @@ export const ProfileModal = styled.div`
   }
 `;
 
-export const LogOutButton = styled.button`
+export const StyledLogOutButton = styled.button`
   border: none;
   width: 100%;
   border-top: 1px solid rgb(29, 28, 29);
@@ -233,12 +240,12 @@ export const LogOutButton = styled.button`
   cursor: pointer;
 `;
 
-export const TalkspaceWrapper = styled.div`
+export const StyledTalkspaceWrapper = styled.div`
   display: flex;
   flex: 1;
 `;
 
-export const Talkspaces = styled.div`
+export const StyledTalkspaces = styled.div`
   width: 65px;
   display: inline-flex;
   flex-direction: column;
@@ -252,7 +259,7 @@ export const Talkspaces = styled.div`
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 `;
 
-export const Channels = styled.nav`
+export const StyledChannels = styled.nav`
   width: 260px;
   display: inline-flex;
   flex-direction: column;
@@ -300,7 +307,7 @@ export const Channels = styled.nav`
   }
 `;
 
-export const TalkspaceName = styled.button`
+export const StyledTalkspaceName = styled.button`
   height: 64px;
   line-height: 64px;
   border: none;
@@ -321,12 +328,12 @@ export const TalkspaceName = styled.button`
   cursor: pointer;
 `;
 
-export const MenuScroll = styled.div`
+export const StyledMenuScroll = styled.div`
   height: calc(100vh - 102px);
   overflow-y: auto;
 `;
 
-export const TalkspaceModal = styled.div`
+export const StyledTalkspaceModal = styled.div`
   padding: 10px 0 0;
   & h2 {
     padding-left: 20px;
@@ -345,11 +352,11 @@ export const TalkspaceModal = styled.div`
   }
 `;
 
-export const Chats = styled.div`
+export const StyledChatView = styled.div`
   flex: 1;
 `;
 
-export const AddButton = styled.button`
+export const StyledAddButton = styled.button`
   color: white;
   font-size: 24px;
   display: inline-block;
@@ -360,7 +367,7 @@ export const AddButton = styled.button`
   cursor: pointer;
 `;
 
-export const TalkspaceButton = styled.button`
+export const StyledTalkspaceButton = styled.button`
   display: inline-block;
   width: 40px;
   height: 40px;

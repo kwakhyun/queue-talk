@@ -10,12 +10,12 @@ export const useInput = <T = any>(
   initialData: T
 ): [
   T,
-  (e: ChangeEvent<HTMLInputElement>) => void,
+  (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
   Dispatch<SetStateAction<T>>
 ] => {
   const [value, setValue] = useState(initialData);
 
-  const handler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  const handler = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValue(e.target.value as unknown as T);
   }, []);
 

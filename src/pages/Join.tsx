@@ -43,7 +43,7 @@ export const Join = () => {
   );
 
   if (data) {
-    navigate("/");
+    navigate("/talkspace/sleact");
   }
 
   if (error) {
