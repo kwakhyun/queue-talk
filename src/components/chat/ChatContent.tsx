@@ -1,16 +1,31 @@
 import styled from "@emotion/styled";
+import { FC, useCallback, useRef } from "react";
+import { IDM } from "../../typings/db";
+import { Chat } from "./Chat";
+import { Scrollbars } from "react-custom-scrollbars";
 
+interface IPorps {
+  chatData?: IDM[];
+}
 
-export const ChatContent = () => {
-  
+export const ChatContent: FC<IPorps> = ({ chatData }) => {
+  const scrollberRef = useRef<Scrollbars>(null);
+  const onScroll = useCallback(() => {}, []);
+  console.log(chatData);
 
-    return (
-      <StyledChatZone>
-        채팅 내용
-      </StyledChatZone>
-    );
-  };
-  
+  return (
+    <StyledChatZone>
+      <Scrollbars autoHide ref={scrollberRef} onScroll={onScroll}>
+        {chatData
+          ?.sort((a: IDM, b: IDM) => a.id - b.id)
+          .map((chat) => {
+            return <Chat key={chat.id} data={chat} />;
+          })}
+      </Scrollbars>
+    </StyledChatZone>
+  );
+};
+
 export const StyledChatZone = styled.div`
   width: 100%;
   display: flex;

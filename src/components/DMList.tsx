@@ -1,13 +1,17 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import useSWR from "swr";
+import { useSocket } from "../hooks/useSocket";
 import { IUserWithOnline } from "../typings/db";
 import { fetcher } from "../utils/fetcher";
 import { StyledCollapseButton } from "./ChannelList";
 
 export const DMList = () => {
   const { talkspace } = useParams<{ talkspace: string }>();
+  const [socket] = useSocket(talkspace);
+
   const [channelCollapse, setChannelCollapse] = useState(true);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
 
   const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
   const { data: memberData } = useSWR(
@@ -16,6 +20,16 @@ export const DMList = () => {
       : null,
     fetcher
   );
+
+  useEffect(() => {
+    socket?.on("onlineList", (data: number[]) => {
+      setOnlineList(data);
+    });
+
+    return () => {
+      socket?.off("onlineList");
+    };
+  }, [socket]);
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse(!channelCollapse);
@@ -35,6 +49,8 @@ export const DMList = () => {
       <div>
         {channelCollapse &&
           memberData?.map((item: IUserWithOnline) => {
+            const isOnline = onlineList.includes(item.id);
+            
             return (
               <NavLink
                 key={item.id}
@@ -42,8 +58,8 @@ export const DMList = () => {
               >
                 {item.nickname}
                 {item.id === userData?.id && <span>👑</span>}
-                {item.online && item.id !== userData?.id && <span>🟢</span>}
-                {!item.online && item.id !== userData?.id && <span>🔴</span>}
+                {isOnline && item.id !== userData?.id && <span>🟢</span>}
+                {!isOnline && item.id !== userData?.id && <span>🔴</span>}
               </NavLink>
             );
           })}

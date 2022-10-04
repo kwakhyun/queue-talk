@@ -53,7 +53,7 @@ export const InviteChannelModal: FC<IProps> = ({
           toast.error(error.response?.data, { position: "bottom-center" });
         });
     },
-    [inviteMember, talkspace, setShow, setInviteMember, memberMutate]
+    [inviteMember, talkspace, channel, setShow, setInviteMember, memberMutate]
   );
 
   return (

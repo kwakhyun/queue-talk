@@ -6,7 +6,7 @@ import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
 import gravatar from "gravatar";
 import { Menu } from "../menu/Menu";
-import { ITalkspace } from "../../typings/db";
+import { IChannel, ITalkspace } from "../../typings/db";
 import { CreateChannelModal } from "../modal/CreateChannelModal";
 import { CreateTalkspace } from "../modal/CreateTalkspaceModal";
 import { InviteTalkspaceModal } from "../modal/InviteTalkspaceModal";
@@ -15,10 +15,13 @@ import { ChannelList } from "../ChannelList";
 import { DMList } from "../DMList";
 import { Channel } from "../../pages/Channel";
 import { DM } from "../../pages/DM";
+import { useSocket } from "../../hooks/useSocket";
 
 export const Talkspace = ({ children }: PropsWithChildren) => {
-  const { talkspace } = useParams<{ talkspace: string }>();
   const navigate = useNavigate();
+  const { talkspace } = useParams<{ talkspace: string }>();
+  const [socket, disconnect] = useSocket(talkspace);
+
   const [showMenu, setShowMenu] = useState(false);
   const [showCreateTalkspaceModal, setShowCreateTalkspaceModal] =
     useState(false);
@@ -34,9 +37,37 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
     mutate,
   } = useSWR("http://localhost:3095/api/users", fetcher);
 
-  // useEffect(() => {
-  //   navigate("/dd/");
-  // }, [navigate]);
+  const { data: channelData } = useSWR(
+    userData
+      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
+      : null,
+    fetcher
+  );
+
+  // const { data: memberData } = useSWR(
+  //   userData
+  //     ? `http://localhost:3095/api/workspaces/${talkspace}/members`
+  //     : null,
+  //   fetcher
+  // );
+
+  // 웹 소켓 연결 확인
+  useEffect(() => {
+    if (userData && channelData && socket) {
+      console.log(socket)
+      socket.emit("login", {
+        id: userData.id,
+        channels: channelData.map((v: IChannel) => v.id),
+      });
+    }
+  }, [userData, channelData, socket]);
+
+  // 웹 소켓 연결 해제
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [disconnect, talkspace]);
 
   const onLogout = useCallback(() => {
     axios
@@ -161,7 +192,6 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
             <Route path="/dm/:id" element={<DM />} />
           </Routes>
         </StyledChatView>
-
       </StyledTalkspaceWrapper>
       {children}
       <CreateTalkspace

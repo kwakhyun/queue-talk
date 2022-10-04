@@ -18,12 +18,12 @@ export const DM = () => {
     `http://localhost:3095/api/workspaces/${talkspace}/users/${id}`,
     fetcher
   );
-  // const { data: chatData, mutate: chatMutate } = useSWR(
-  //   userData && memberData
-  //     ? `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/chats?perPage=20&page=1`
-  //     : null,
-  //   fetcher
-  // );
+  const { data: chatData, mutate: chatMutate } = useSWR(
+    userData && memberData
+      ? `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/chats?perPage=20&page=1`
+      : null,
+    fetcher
+  );
 
   const onSubmitForm = useCallback(
     (e: { preventDefault: () => void }) => {
@@ -34,9 +34,13 @@ export const DM = () => {
             `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/chats`,
             {
               content: chat,
+            },
+            {
+              withCredentials: true,
             }
           )
           .then(() => {
+            chatMutate(chatData);
             setChat("");
           })
           .catch((error) => {
@@ -44,7 +48,7 @@ export const DM = () => {
           });
       }
     },
-    [chat, talkspace, id, setChat]
+    [chat, talkspace, id, setChat, chatMutate, chatData]
   );
 
   if (!userData || !memberData) return null;
@@ -58,7 +62,7 @@ export const DM = () => {
         />
         <span>{memberData?.nickname}</span>
       </StyledHeader>
-      <ChatContent />
+      <ChatContent chatData={chatData} />
       <ChatInputBox
         chat={chat}
         onChangeChat={onChangeChat}
