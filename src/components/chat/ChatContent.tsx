@@ -6,9 +6,10 @@ import { Scrollbars } from "react-custom-scrollbars";
 
 interface IPorps {
   chatData?: IDM[];
+  chatSections?: any;
 }
 
-export const ChatContent: FC<IPorps> = ({ chatData }) => {
+export const ChatContent: FC<IPorps> = ({ chatData, chatSections }) => {
   const scrollberRef = useRef<Scrollbars>(null);
   const onScroll = useCallback(() => {}, []);
   console.log(chatData);
@@ -16,11 +17,20 @@ export const ChatContent: FC<IPorps> = ({ chatData }) => {
   return (
     <StyledChatZone>
       <Scrollbars autoHide ref={scrollberRef} onScroll={onScroll}>
-        {chatData
-          ?.sort((a: IDM, b: IDM) => a.id - b.id)
-          .map((chat) => {
-            return <Chat key={chat.id} data={chat} />;
-          })}
+        {Object.entries(chatSections).map(([date]) => {
+          return (
+            <StyledSection key={date}>
+              <StyledStickyHeader>
+                <button>{date}</button>
+              </StyledStickyHeader>
+              {chatData
+                ?.sort((a: IDM, b: IDM) => a.id - b.id)
+                .map((chat) => {
+                  return <Chat key={chat.id} data={chat} />;
+                })}
+            </StyledSection>
+          );
+        })}
       </Scrollbars>
     </StyledChatZone>
   );

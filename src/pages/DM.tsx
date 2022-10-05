@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { ChatContent } from "../components/chat/ChatContent";
 import { ChatInputBox } from "../components/chat/ChatInputBox";
 import { useInput } from "../hooks/useInput";
+import { dateSection } from "../utils/dateSection";
 import { fetcher } from "../utils/fetcher";
 
 export const DM = () => {
@@ -51,6 +52,8 @@ export const DM = () => {
     [chat, talkspace, id, setChat, chatMutate, chatData]
   );
 
+  const chatSections = dateSection(chatData);
+
   if (!userData || !memberData) return null;
 
   return (
@@ -62,7 +65,7 @@ export const DM = () => {
         />
         <span>{memberData?.nickname}</span>
       </StyledHeader>
-      <ChatContent chatData={chatData} />
+      <ChatContent chatData={chatData} chatSections={chatSections} />
       <ChatInputBox
         chat={chat}
         onChangeChat={onChangeChat}
