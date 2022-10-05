@@ -1,10 +1,16 @@
 import styled from "@emotion/styled";
-import { ChangeEventHandler, FC, useCallback, useEffect, useRef } from "react";
+import { FC, ReactNode, useCallback, useEffect, useRef } from "react";
 import autosize from "autosize";
+import { MentionsInput, Mention, SuggestionDataItem } from "react-mentions";
+import { useParams } from "react-router-dom";
+import useSWR from "swr";
+import { fetcher } from "../../utils/fetcher";
+import { IUser } from "../../typings/db";
+import gravatar from "gravatar";
 
 interface IProps {
   chat: string;
-  onChangeChat: ChangeEventHandler<HTMLTextAreaElement>;
+  onChangeChat: (e: any) => void;
   onSubmitForm: (e: any) => void;
 }
 
@@ -13,11 +19,20 @@ export const ChatInputBox: FC<IProps> = ({
   onChangeChat,
   onSubmitForm,
 }) => {
-  const textareaRef = useRef(null);
+  const { talkspace } = useParams<{ talkspace: string }>();
+  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: memberData } = useSWR(
+    userData
+      ? `http://localhost:3095/api/workspaces/${talkspace}/members`
+      : null,
+    fetcher
+  );
+
+  const mentionsInputRef = useRef(null);
 
   useEffect(() => {
-    if (textareaRef.current) {
-      autosize(textareaRef.current);
+    if (mentionsInputRef.current) {
+      autosize(mentionsInputRef.current);
     }
   }, []);
 
@@ -32,15 +47,49 @@ export const ChatInputBox: FC<IProps> = ({
     [onSubmitForm]
   );
 
+  const renderSuggestion = useCallback(
+    (
+      suggestion: SuggestionDataItem,
+      search: string,
+      highlightedDisplay: ReactNode,
+      index: number,
+      focused: boolean
+    ): ReactNode => {
+      if (!memberData) return;
+      return (
+        <StyledEachMention focus={focused}>
+          <img
+            src={gravatar.url(memberData[index].email, { s: "20", d: "retro" })}
+            alt={memberData[index].nickname}
+          />
+          <span>{highlightedDisplay}</span>
+        </StyledEachMention>
+      );
+    },
+    [memberData]
+  );
+
   return (
     <StyledChatArea>
       <StyledForm onSubmit={onSubmitForm}>
-        <StyledTextarea
+        <StyledMentionsInput
           value={chat}
           onChange={onChangeChat}
           onKeyDown={onKeyDownEnter}
-          ref={textareaRef}
-        />
+          inputRef={mentionsInputRef}
+          allowSuggestionsAboveCursor
+        >
+          <Mention
+            data={
+              memberData?.map((v: IUser) => {
+                return { id: v.id, display: v.nickname };
+              }) || []
+            }
+            trigger="@"
+            appendSpaceOnAdd
+            renderSuggestion={renderSuggestion}
+          ></Mention>
+        </StyledMentionsInput>
         <StyledToolbox>
           <StyledSendButton type="submit" disabled={!chat.trim()}>
             Enter
@@ -66,7 +115,7 @@ export const StyledForm = styled.form`
   border: 1px solid rgb(29, 28, 29);
 `;
 
-export const StyledTextarea = styled.textarea`
+export const StyledMentionsInput = styled(MentionsInput)`
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 15px;
   padding: 8px 9px;

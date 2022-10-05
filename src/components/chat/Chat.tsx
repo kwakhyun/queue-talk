@@ -1,15 +1,43 @@
 import styled from "@emotion/styled";
-import { FC } from "react";
+import { FC, memo, useMemo } from "react";
 import { IDM } from "../../typings/db";
 import gravatar from "gravatar";
 import dayjs from "dayjs";
+import regexifyString from "regexify-string";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface IPorps {
   data: IDM | any;
 }
 
-export const Chat: FC<IPorps> = ({ data }) => {
+export const Chat: FC<IPorps> = memo(({ data }) => {
+  const navigate = useNavigate();
+  const { talkspace } = useParams<{ talkspace: string; channel: string }>();
   const user = data.Sender;
+
+  const regexifyContent = useMemo(
+    () =>
+      regexifyString({
+        input: data.content,
+        pattern: /@\[(.+?)]\((\d+?)\)|\n/g,
+        decorator(match, index) {
+          const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
+          if (arr) {
+            return (
+              <span
+                key={index}
+                style={{ cursor: "pointer", backgroundColor: "lightgreen" }}
+                onClick={() => navigate(`/talkspace/${talkspace}/dm/${arr[2]}`)}
+              >
+                @{arr[1]}
+              </span>
+            );
+          }
+          return <br key={index} />;
+        },
+      }),
+    [data.content, navigate, talkspace]
+  );
 
   return (
     <StyledChat>
@@ -24,11 +52,11 @@ export const Chat: FC<IPorps> = ({ data }) => {
           <b>{user.nickname}</b>
           <span>{dayjs(data.createdAt).format("A h:mm")}</span>
         </div>
-        <p>{data.content}</p>
+        <p>{regexifyContent}</p>
       </div>
     </StyledChat>
   );
-};
+});
 
 export const StyledChat = styled.div`
   display: flex;
