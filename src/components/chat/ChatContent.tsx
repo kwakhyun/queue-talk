@@ -1,31 +1,48 @@
 import styled from "@emotion/styled";
-import { FC, useCallback, useRef } from "react";
+import { FC, RefObject, useCallback } from "react";
 import { IDM } from "../../typings/db";
 import { Chat } from "./Chat";
-import { Scrollbars } from "react-custom-scrollbars";
+import { positionValues, Scrollbars } from "react-custom-scrollbars";
 
 interface IPorps {
-  chatData?: IDM[];
-  chatSections?: any;
+  chatSections: { [key: string]: IDM[] };
+  scrollberRef: RefObject<Scrollbars>;
+  setSize: (f: (indux: number) => number) => Promise<IDM[][] | undefined>;
+  isLast: boolean | undefined;
 }
 
-export const ChatContent: FC<IPorps> = ({ chatData, chatSections }) => {
-  const scrollberRef = useRef<Scrollbars>(null);
-  const onScroll = useCallback(() => {}, []);
-  console.log(chatData);
+export const ChatContent: FC<IPorps> = ({
+  chatSections,
+  scrollberRef,
+  setSize,
+  isLast,
+}) => {
+  const onScroll = useCallback(
+    (values: positionValues) => {
+      if (values.scrollTop === 0 && !isLast) {
+        setSize((prevSize) => prevSize + 1).then(() => {
+          scrollberRef.current?.scrollTop(
+            scrollberRef.current?.getScrollHeight() - values.scrollHeight
+          );
+        });
+      }
+    },
+    [isLast, setSize, scrollberRef]
+  );
+  console.log(chatSections);
 
   return (
     <StyledChatZone>
-      <Scrollbars autoHide ref={scrollberRef} onScroll={onScroll}>
-        {Object.entries(chatSections).map(([date]) => {
+      <Scrollbars autoHide ref={scrollberRef} onScrollFrame={onScroll}>
+        {Object.entries(chatSections).map(([date, chats]) => {
           return (
             <StyledSection key={date}>
               <StyledStickyHeader>
                 <button>{date}</button>
               </StyledStickyHeader>
-              {chatData
-                ?.sort((a: IDM, b: IDM) => a.id - b.id)
-                .map((chat) => {
+              {chats
+                // ?.sort((a: IDM, b: IDM) => a.id - b.id)
+                ?.map((chat) => {
                   return <Chat key={chat.id} data={chat} />;
                 })}
             </StyledSection>
