@@ -125,7 +125,7 @@ export const DM = () => {
   if (!userData || !memberData) return null;
 
   return (
-    <StyeldContainer>
+    <StyledContainer>
       <StyledHeader>
         <img
           src={gravatar.url(memberData?.email, { d: "retro" })}
@@ -144,11 +144,11 @@ export const DM = () => {
         onChangeChat={onChangeChat}
         onSubmitForm={onSubmitForm}
       />
-    </StyeldContainer>
+    </StyledContainer>
   );
 };
 
-export const StyeldContainer = styled.div`
+export const StyledContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   height: calc(100vh - 38px);
