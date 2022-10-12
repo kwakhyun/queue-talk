@@ -42,7 +42,7 @@ export const DMList = () => {
           collapse={channelCollapse}
           onClick={toggleChannelCollapse}
         >
-          🔽
+          {channelCollapse ? "🔽" : "▶"}
         </StyledCollapseButton>
         <span>1:1 채팅 목록</span>
       </h2>

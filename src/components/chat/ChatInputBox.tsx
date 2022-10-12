@@ -92,11 +92,10 @@ export const ChatInputBox: FC<IProps> = ({
             renderSuggestion={renderSuggestion}
           ></Mention>
         </StyledMentionsInput>
-        <StyledToolbox>
-          <StyledSendButton type="submit" disabled={!chat.trim()}>
-            Enter
-          </StyledSendButton>
-        </StyledToolbox>
+
+        <button type="submit" disabled={!chat.trim()}>
+          ENTER
+        </button>
       </StyledForm>
     </StyledChatArea>
   );
@@ -114,6 +113,11 @@ export const StyledForm = styled.form`
   width: 100%;
   border-radius: 4px;
   border: 1px solid rgb(29, 28, 29);
+  display: flex;
+  button {
+    color: #fff;
+    background-color: #343a40;
+  }
 `;
 
 export const StyledMentionsInput = styled(MentionsInput)`
@@ -144,22 +148,22 @@ export const StyledMentionsInput = styled(MentionsInput)`
   }
 `;
 
-export const StyledToolbox = styled.div`
-  position: relative;
-  background: rgb(248, 248, 248);
-  height: 41px;
-  display: flex;
-  border-top: 1px solid rgb(221, 221, 221);
-  align-items: center;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-`;
+// export const StyledToolbox = styled.div`
+//   position: relative;
+//   background: rgb(248, 248, 248);
+//   height: 41px;
+//   display: flex;
+//   border-top: 1px solid rgb(221, 221, 221);
+//   align-items: center;
+//   border-bottom-left-radius: 4px;
+//   border-bottom-right-radius: 4px;
+// `;
 
-export const StyledSendButton = styled.button`
-  position: absolute;
-  right: 5px;
-  top: 5px;
-`;
+// export const StyledSendButton = styled.button`
+//   position: absolute;
+//   right: 5px;
+//   top: 5px;
+// `;
 
 export const StyledEachMention = styled.button<{ focus: boolean }>`
   padding: 4px 20px;

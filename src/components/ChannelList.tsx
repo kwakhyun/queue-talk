@@ -28,7 +28,7 @@ export const ChannelList = () => {
           collapse={channelCollapse}
           onClick={toggleChannelCollapse}
         >
-          🔽
+          {channelCollapse ? "🔽" : "▶"}
         </StyledCollapseButton>
         <span>채널 목록</span>
       </h2>

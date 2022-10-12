@@ -1,7 +1,14 @@
 import styled from "@emotion/styled";
 import axios from "axios";
 import { PropsWithChildren, useCallback, useEffect, useState } from "react";
-import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
 import gravatar from "gravatar";
@@ -54,7 +61,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
   // 웹 소켓 연결 확인
   useEffect(() => {
     if (userData && channelData && socket) {
-      console.log(socket)
+      console.log(socket);
       socket.emit("login", {
         id: userData.id,
         channels: channelData.map((v: IChannel) => v.id),
@@ -117,9 +124,10 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
   if (error) alert("서버와 연결이 불안정합니다.");
 
   return (
-    <div>
+    <StyledContainer>
       <StyledHeader>
-        <StyledRightMenu>
+        <h1>QueueTalk</h1>
+        <div>
           <div onClick={onClickUserProfile}>
             <StyledProfileImg
               src={gravatar.url(userData?.email, { d: "retro" })}
@@ -137,7 +145,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
                     alt={userData?.nickname}
                   />
                   <span id="profile-name">{userData?.nickname}</span>
-                  <span id="profile-active">Active</span>
+                  <span id="profile-email">{userData?.email}</span>
                 </StyledProfileModal>
                 <StyledLogOutButton onClick={onLogout}>
                   로그아웃
@@ -145,24 +153,27 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
               </Menu>
             )}
           </div>
-        </StyledRightMenu>
+        </div>
       </StyledHeader>
       <StyledTalkspaceWrapper>
         <StyledTalkspaces>
           {userData?.Workspaces.map((item: ITalkspace) => {
             return (
-              <Link key={item.id} to={``}>
+              <NavLink
+                key={item.id}
+                to={`/talkspace/${item.name}/channel/일반`}
+              >
                 <StyledTalkspaceButton>
-                  {item.name.slice(0, 1).toUpperCase()}
+                  {item.name.slice(0, 2)}
                 </StyledTalkspaceButton>
-              </Link>
+              </NavLink>
             );
           })}
           <StyledAddButton onClick={onClickCreateTalkspace}>+</StyledAddButton>
         </StyledTalkspaces>
         <StyledChannels>
           <StyledTalkspaceName onClick={toggleTalkspaceModal}>
-            QueueTalk
+            초대 또는 채널 만들기
           </StyledTalkspaceName>
           <StyledMenuScroll>
             {showTalkspaceModal && (
@@ -172,11 +183,13 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
                 onCloseModal={toggleTalkspaceModal}
               >
                 <StyledTalkspaceModal>
-                  <h2>dd</h2>
+                  <h2>{talkspace}</h2>
                   <button onClick={onClickInviteTalkspace}>
-                    톡 스페이스에 유저 초대하기
+                    <b>{talkspace}</b>으로 유저 초대하기
                   </button>
-                  <button onClick={onClickAddChannel}>채널 생성</button>
+                  <button onClick={onClickAddChannel}>
+                    <b>{talkspace}</b>에 새로운 채널 생성
+                  </button>
                   <button onClick={onLogout}>로그아웃</button>
                 </StyledTalkspaceModal>
               </Menu>
@@ -214,27 +227,31 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
         setShow={setShowInviteChannelModal}
         onCloseModal={onCloseModal}
       />
-    </div>
+    </StyledContainer>
   );
 };
 
-export const StyledRightMenu = styled.div`
-  float: right;
-`;
+const StyledContainer = styled.div``;
 
 export const StyledHeader = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   height: 50px;
-  background: #134381;
-  color: #ffffff;
+  background: #031930;
+  color: #fff;
+  border: 5px solid #fff;
   box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  padding: 5px;
+  padding: 5px 20px;
   text-align: center;
 `;
 
 export const StyledProfileImg = styled.img`
-  width: 50px;
-  height: 50px;
-  border-radius: 25%;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  margin-top: 3px;
 `;
 
 export const StyledProfileModal = styled.div`
@@ -248,11 +265,12 @@ export const StyledProfileModal = styled.div`
     flex-direction: column;
     margin-left: 10px;
   }
-  & #profile-name {
+  #profile-name {
     font-weight: bold;
     display: inline-flex;
+    margin: 0 10px;
   }
-  & #profile-active {
+  #profile-email {
     font-size: 13px;
     display: inline-flex;
   }
@@ -280,9 +298,8 @@ export const StyledTalkspaces = styled.div`
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  background: #134381;
-  border-top: 1px solid #eee;
-  border-right: 1px solid #eee;
+  background: #031930;
+  border-right: 5px solid #eee;
   vertical-align: top;
   text-align: center;
   padding: 15px 0 0;
@@ -293,8 +310,9 @@ export const StyledChannels = styled.nav`
   width: 260px;
   display: inline-flex;
   flex-direction: column;
-  background: #134381;
-  color: rgb(188, 171, 188);
+  background: #031930;
+  color: #fff;
+
   vertical-align: top;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   & a {
@@ -306,11 +324,11 @@ export const StyledChannels = styled.nav`
     display: flex;
     align-items: center;
     &.selected {
-      color: white;
+      color: #fff;
     }
   }
   & .bold {
-    color: white;
+    color: #fff;
     font-weight: bold;
   }
   & .count {
@@ -323,7 +341,7 @@ export const StyledChannels = styled.nav`
     height: 18px;
     line-height: 18px;
     padding: 0 9px;
-    color: white;
+    color: #fff;
     margin-right: 16px;
   }
   & h2 {
@@ -338,23 +356,20 @@ export const StyledChannels = styled.nav`
 `;
 
 export const StyledTalkspaceName = styled.button`
-  height: 64px;
-  line-height: 64px;
+  height: 50px;
   border: none;
   width: 100%;
-  text-align: left;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
+  text-align: center;
+  border-bottom: 5px solid #eee;
   font-weight: 900;
-  font-size: 24px;
+  font-size: 18px;
+  color: #fff;
   background: transparent;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   padding: 0;
-  padding-left: 16px;
   margin: 0;
-  color: white;
   cursor: pointer;
 `;
 
@@ -387,7 +402,7 @@ export const StyledChatView = styled.div`
 `;
 
 export const StyledAddButton = styled.button`
-  color: white;
+  color: #fff;
   font-size: 24px;
   display: inline-block;
   width: 40px;
@@ -399,11 +414,10 @@ export const StyledAddButton = styled.button`
 
 export const StyledTalkspaceButton = styled.button`
   display: inline-block;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: white;
-  border: 3px solid #134381;
+  width: 50px;
+  height: 30px;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   margin-bottom: 15px;
   font-size: 18px;
   font-weight: 700;
