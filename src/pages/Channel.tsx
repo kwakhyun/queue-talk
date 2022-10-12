@@ -13,6 +13,7 @@ import { useSocket } from "../hooks/useSocket";
 import { IChannel, IChat } from "../typings/db";
 import { dateSection } from "../utils/dateSection";
 import { fetcher } from "../utils/fetcher";
+import { RiDragDropLine } from "react-icons/ri";
 
 export const Channel = () => {
   const { talkspace, channel } = useParams<{
@@ -23,6 +24,7 @@ export const Channel = () => {
   const scrollberRef = useRef<Scrollbars>(null);
   const [socket] = useSocket(talkspace);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
   const { data: channelMemberData } = useSWR(
@@ -148,10 +150,51 @@ export const Channel = () => {
     setShowInviteChannelModal(false);
   }, []);
 
+  const onDrop = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          if (e.dataTransfer.items[i].kind === "file") {
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log("... file[" + i + "].name = " + file.name);
+            formData.append("image", file);
+          }
+        }
+      } else {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          console.log(
+            "... file[" + i + "].name = " + e.dataTransfer.files[i].name
+          );
+          formData.append("image", e.dataTransfer.files[i]);
+        }
+      }
+      axios
+        .post(
+          `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/images`,
+          formData,
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          setDragOver(false);
+          chatMutate(chatData);
+        });
+    },
+    [talkspace, channel, chatMutate, chatData]
+  );
+
+  const onDragOver = useCallback((e: any) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
   if (!userData) return null;
 
   return (
-    <StyledContainer>
+    <StyledContainer onDrop={onDrop} onDragOver={onDragOver}>
       <StyledHeader>
         <div>
           <h2># {channel}</h2>
@@ -179,6 +222,11 @@ export const Channel = () => {
         setShow={setShowInviteChannelModal}
         onCloseModal={onCloseModal}
       />
+      {dragOver && (
+        <StyledDragOver>
+          <RiDragDropLine size="10rem" />
+        </StyledDragOver>
+      )}
     </StyledContainer>
   );
 };

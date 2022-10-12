@@ -17,25 +17,35 @@ export const Chat: FC<IPorps> = memo(({ data }) => {
 
   const regexifyContent = useMemo(
     () =>
-      regexifyString({
-        input: data.content,
-        pattern: /@\[(.+?)]\((\d+?)\)|\n/g,
-        decorator(match, index) {
-          const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
-          if (arr) {
-            return (
-              <span
-                key={index}
-                style={{ cursor: "pointer", backgroundColor: "lightgreen" }}
-                onClick={() => navigate(`/talkspace/${talkspace}/dm/${arr[2]}`)}
-              >
-                @{arr[1]}
-              </span>
-            );
-          }
-          return <br key={index} />;
-        },
-      }),
+      data.content.startsWith("uploads\\") ? (
+        <img
+          src={`http://localhost:3095/${data.content}`}
+          alt={data.content}
+          style={{ maxWidth: 500 }}
+        />
+      ) : (
+        regexifyString({
+          input: data.content,
+          pattern: /@\[(.+?)]\((\d+?)\)|\n/g,
+          decorator(match, index) {
+            const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
+            if (arr) {
+              return (
+                <span
+                  key={index}
+                  style={{ cursor: "pointer", backgroundColor: "lightgreen" }}
+                  onClick={() =>
+                    navigate(`/talkspace/${talkspace}/dm/${arr[2]}`)
+                  }
+                >
+                  @{arr[1]}
+                </span>
+              );
+            }
+            return <br key={index} />;
+          },
+        })
+      ),
     [data.content, navigate, talkspace]
   );
 

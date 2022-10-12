@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import axios from "axios";
 import gravatar from "gravatar";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Scrollbars from "react-custom-scrollbars";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
@@ -13,12 +13,14 @@ import { useSocket } from "../hooks/useSocket";
 import { IDM } from "../typings/db";
 import { dateSection } from "../utils/dateSection";
 import { fetcher } from "../utils/fetcher";
+import { RiDragDropLine } from "react-icons/ri";
 
 export const DM = () => {
   const { talkspace, id } = useParams<{ talkspace: string; id: string }>();
   const [chat, onChangeChat, setChat] = useInput("");
   const scrollberRef = useRef<Scrollbars>(null);
   const [socket] = useSocket(talkspace);
+  const [dragOver, setDragOver] = useState(false);
 
   const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
   const { data: memberData } = useSWR(
@@ -122,10 +124,51 @@ export const DM = () => {
 
   const chatSections = dateSection(chatData ? chatData.flat().reverse() : []);
 
+  const onDrop = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          if (e.dataTransfer.items[i].kind === "file") {
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log("... file[" + i + "].name = " + file.name);
+            formData.append("image", file);
+          }
+        }
+      } else {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          console.log(
+            "... file[" + i + "].name = " + e.dataTransfer.files[i].name
+          );
+          formData.append("image", e.dataTransfer.files[i]);
+        }
+      }
+      axios
+        .post(
+          `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/images`,
+          formData,
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          setDragOver(false);
+          chatMutate(chatData);
+        });
+    },
+    [talkspace, id, chatMutate, chatData]
+  );
+
+  const onDragOver = useCallback((e: any) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
   if (!userData || !memberData) return null;
 
   return (
-    <StyledContainer>
+    <StyledContainer onDrop={onDrop} onDragOver={onDragOver}>
       <StyledHeader>
         <img
           src={gravatar.url(memberData?.email, { d: "retro" })}
@@ -144,6 +187,11 @@ export const DM = () => {
         onChangeChat={onChangeChat}
         onSubmitForm={onSubmitForm}
       />
+      {dragOver && (
+        <StyledDragOver>
+          <RiDragDropLine size="10rem" />
+        </StyledDragOver>
+      )}
     </StyledContainer>
   );
 };
@@ -160,12 +208,10 @@ export const StyledHeader = styled.header`
   height: 64px;
   display: flex;
   width: 100%;
-  --saf-0: rgba(var(--sk_foreground_low, 29, 28, 29), 0.13);
-  box-shadow: 0 1px 0 var(--saf-0);
   padding: 20px 16px 20px 20px;
   font-weight: bold;
   align-items: center;
-  & img {
+  img {
     margin-right: 5px;
   }
 `;
