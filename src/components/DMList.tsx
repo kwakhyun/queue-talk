@@ -20,7 +20,7 @@ export const DMList = () => {
       : null,
     fetcher
   );
-
+  console.log(memberData);
   useEffect(() => {
     socket?.on("onlineList", (data: number[]) => {
       setOnlineList(data);
@@ -48,9 +48,10 @@ export const DMList = () => {
       </h2>
       <div>
         {channelCollapse &&
+          Array.isArray(memberData) &&
           memberData?.map((item: IUserWithOnline) => {
             const isOnline = onlineList.includes(item.id);
-            
+
             return (
               <NavLink
                 key={item.id}

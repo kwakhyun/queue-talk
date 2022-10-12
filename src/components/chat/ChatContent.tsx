@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
 import { FC, RefObject, useCallback } from "react";
-import { IDM } from "../../typings/db";
+import { IChat, IDM } from "../../typings/db";
 import { Chat } from "./Chat";
 import { positionValues, Scrollbars } from "react-custom-scrollbars";
 
 interface IPorps {
-  chatSections: { [key: string]: IDM[] };
+  chatSections: { [key: string]: (IDM | IChat)[] };
   scrollberRef: RefObject<Scrollbars>;
-  setSize: (f: (indux: number) => number) => Promise<IDM[][] | undefined>;
+  setSize: (
+    f: (indux: number) => number
+  ) => Promise<(IDM | IChat)[][] | undefined>;
   isLast: boolean | undefined;
 }
 

@@ -38,9 +38,12 @@ export const InviteChannelModal: FC<IProps> = ({
       if (!inviteMember || !inviteMember.trim()) return;
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/member`,
+          `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/members`,
           {
             email: inviteMember,
+          },
+          {
+            withCredentials: true,
           }
         )
         .then((response) => {

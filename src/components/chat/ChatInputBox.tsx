@@ -81,9 +81,11 @@ export const ChatInputBox: FC<IProps> = ({
         >
           <Mention
             data={
-              memberData?.map((v: IUser) => {
-                return { id: v.id, display: v.nickname };
-              }) || []
+              (Array.isArray(memberData) &&
+                memberData?.map((v: IUser) => {
+                  return { id: v.id, display: v.nickname };
+                })) ||
+              []
             }
             trigger="@"
             appendSpaceOnAdd
@@ -102,7 +104,6 @@ export const ChatInputBox: FC<IProps> = ({
 
 export const StyledChatArea = styled.div`
   display: flex;
-  width: 100%;
   padding: 20px;
   padding-top: 0;
 `;

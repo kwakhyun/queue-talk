@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import useSWR from "swr";
 import { IChannel } from "../typings/db";
 import { fetcher } from "../utils/fetcher";
@@ -35,7 +35,14 @@ export const ChannelList = () => {
       <div>
         {channelCollapse &&
           channelData?.map((item: IChannel) => {
-            return <div key={item.id}>{item.name}</div>;
+            return (
+              <NavLink
+                key={item.id}
+                to={`/talkspace/${talkspace}/channel/${item.name}`}
+              >
+                <span># {item.name}</span>
+              </NavLink>
+            );
           })}
       </div>
     </>

@@ -1,19 +1,19 @@
 import styled from "@emotion/styled";
 import { FC, memo, useMemo } from "react";
-import { IDM } from "../../typings/db";
+import { IChat, IDM } from "../../typings/db";
 import gravatar from "gravatar";
 import dayjs from "dayjs";
 import regexifyString from "regexify-string";
 import { useNavigate, useParams } from "react-router-dom";
 
 interface IPorps {
-  data: IDM | any;
+  data: IDM | IChat;
 }
 
 export const Chat: FC<IPorps> = memo(({ data }) => {
   const navigate = useNavigate();
   const { talkspace } = useParams<{ talkspace: string; channel: string }>();
-  const user = data.Sender;
+  const user = "Sender" in data ? data.Sender : data.User;
 
   const regexifyContent = useMemo(
     () =>
