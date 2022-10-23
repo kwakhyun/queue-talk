@@ -19,3 +19,7 @@
 
 ### 사용 스택
 `TypeScript` `React` `SWR` `Emotion` `Socket.IO` `Node.js` `Express` `MySQL`
+
+### 시연 영상
+https://user-images.githubusercontent.com/73919235/197386880-e494a3a6-9523-4c34-bb0d-b1641b08506a.mp4
+
