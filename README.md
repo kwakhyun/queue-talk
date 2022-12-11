@@ -1,10 +1,12 @@
-## QueueTalk - 실시간 채팅 서비스
-![화면 캡처 2022-09-30 173321](https://user-images.githubusercontent.com/73919235/193351203-bb5cbc68-12ff-4ad0-a134-0edb1cc6b558.jpg)
+## QueueTalk - 그룹 및 1:1 채팅 앱
+![queue-talk-logo-16-9](https://user-images.githubusercontent.com/73919235/206880476-b24809a1-bdcb-4057-ae35-183570730aa0.png)
 
 ### 프로젝트 소개
-- 그룹 및 1:1 채팅 앱 프로젝트입니다.
-- 채팅 기능 구현에 Socket.IO 라이브러리를 채택했습니다.
+- TypeScript를 사용해 JavaScript 정적 타입을 분석했습니다.
+- 커스텀 Hooks를 만들어 코드의 중복을 줄였습니다.
+- React.memo와 useCallback을 사용해 렌더링을 최적화했습니다.
 - SWR 라이브러리를 사용해 컴포넌트 단위로 서버 데이터를 관리했습니다.
+- 채팅 기능 구현에 Socket.IO 라이브러리를 채택했습니다.
 - API 서버는 Node.js Express, DB는 MySQL을 사용했습니다.
 
 ### 주요 기능
