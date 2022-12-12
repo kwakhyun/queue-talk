@@ -1,30 +1,39 @@
-import styled from "@emotion/styled";
-import axios from "axios";
-import { PropsWithChildren, useCallback, useEffect, useState } from "react";
 import {
-  Link,
+  memo,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import {
   NavLink,
   Route,
   Routes,
   useNavigate,
   useParams,
 } from "react-router-dom";
-import useSWR from "swr";
-import { fetcher } from "../../utils/fetcher";
+import styled from "@emotion/styled";
 import gravatar from "gravatar";
+
+import { Channel } from "../../pages/Channel";
+import { DM } from "../../pages/DM";
+
+import { ChannelList } from "../ChannelList";
+import { DMList } from "../DMList";
 import { Menu } from "../menu/Menu";
-import { IChannel, ITalkspace } from "../../typings/db";
+
 import { CreateChannelModal } from "../modal/CreateChannelModal";
 import { CreateTalkspace } from "../modal/CreateTalkspaceModal";
 import { InviteTalkspaceModal } from "../modal/InviteTalkspaceModal";
 import { InviteChannelModal } from "../modal/InviteChannelModal";
-import { ChannelList } from "../ChannelList";
-import { DMList } from "../DMList";
-import { Channel } from "../../pages/Channel";
-import { DM } from "../../pages/DM";
-import { useSocket } from "../../hooks/useSocket";
 
-export const Talkspace = ({ children }: PropsWithChildren) => {
+import axios from "axios";
+import useSWR from "swr";
+import { useSocket } from "../../hooks/useSocket";
+import { fetcher } from "../../utils/fetcher";
+import { IChannel, ITalkspace } from "../../typings/db";
+
+export const Talkspace = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
   const { talkspace } = useParams<{ talkspace: string }>();
   const [socket, disconnect] = useSocket(talkspace);
@@ -42,18 +51,18 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
     data: userData,
     error,
     mutate,
-  } = useSWR("http://localhost:3095/api/users", fetcher);
+  } = useSWR(`${process.env.REACT_APP_SERVER_URL}/api/users`, fetcher);
 
   const { data: channelData } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels`
       : null,
     fetcher
   );
 
   // const { data: memberData } = useSWR(
   //   userData
-  //     ? `http://localhost:3095/api/workspaces/${talkspace}/members`
+  //     ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/members`
   //     : null,
   //   fetcher
   // );
@@ -78,7 +87,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
 
   const onLogout = useCallback(() => {
     axios
-      .post("http://localhost:3095/api/users/logout", null, {
+      .post(`${process.env.REACT_APP_SERVER_URL}/api/users/logout`, null, {
         withCredentials: true,
       })
       .then(() => {
@@ -229,7 +238,7 @@ export const Talkspace = ({ children }: PropsWithChildren) => {
       />
     </StyledContainer>
   );
-};
+});
 
 const StyledContainer = styled.div``;
 

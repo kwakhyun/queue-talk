@@ -1,12 +1,14 @@
+import { FC, memo, ReactNode, useCallback, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import styled from "@emotion/styled";
-import { FC, ReactNode, useCallback, useEffect, useRef } from "react";
+
+import gravatar from "gravatar";
 import autosize from "autosize";
 import { MentionsInput, Mention, SuggestionDataItem } from "react-mentions";
-import { useParams } from "react-router-dom";
+
 import useSWR from "swr";
 import { fetcher } from "../../utils/fetcher";
 import { IUser } from "../../typings/db";
-import gravatar from "gravatar";
 
 interface IProps {
   chat: string;
@@ -14,92 +16,96 @@ interface IProps {
   onSubmitForm: (e: any) => void;
 }
 
-export const ChatInputBox: FC<IProps> = ({
-  chat,
-  onChangeChat,
-  onSubmitForm,
-}) => {
-  const { talkspace } = useParams<{ talkspace: string }>();
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
-  const { data: memberData } = useSWR(
-    userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/members`
-      : null,
-    fetcher
-  );
+export const ChatInputBox: FC<IProps> = memo(
+  ({ chat, onChangeChat, onSubmitForm }) => {
+    const { talkspace } = useParams<{ talkspace: string }>();
+    const { data: userData } = useSWR(
+      `${process.env.REACT_APP_SERVER_URL}/api/users`,
+      fetcher
+    );
+    const { data: memberData } = useSWR(
+      userData
+        ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/members`
+        : null,
+      fetcher
+    );
 
-  const mentionsInputRef = useRef(null);
+    const mentionsInputRef = useRef(null);
 
-  useEffect(() => {
-    if (mentionsInputRef.current) {
-      autosize(mentionsInputRef.current);
-    }
-  }, []);
-
-  const onKeyDownEnter = useCallback(
-    (e: { key: string; shiftKey: boolean }) => {
-      if (e.key === "Enter") {
-        if (!e.shiftKey) {
-          onSubmitForm(e);
-        }
+    useEffect(() => {
+      if (mentionsInputRef.current) {
+        autosize(mentionsInputRef.current);
       }
-    },
-    [onSubmitForm]
-  );
+    }, []);
 
-  const renderSuggestion = useCallback(
-    (
-      suggestion: SuggestionDataItem,
-      search: string,
-      highlightedDisplay: ReactNode,
-      index: number,
-      focused: boolean
-    ): ReactNode => {
-      if (!memberData) return;
-      return (
-        <StyledEachMention focus={focused}>
-          <img
-            src={gravatar.url(memberData[index].email, { s: "20", d: "retro" })}
-            alt={memberData[index].nickname}
-          />
-          <span>{highlightedDisplay}</span>
-        </StyledEachMention>
-      );
-    },
-    [memberData]
-  );
+    const onKeyDownEnter = useCallback(
+      (e: { key: string; shiftKey: boolean }) => {
+        if (e.key === "Enter") {
+          if (!e.shiftKey) {
+            onSubmitForm(e);
+          }
+        }
+      },
+      [onSubmitForm]
+    );
 
-  return (
-    <StyledChatArea>
-      <StyledForm onSubmit={onSubmitForm}>
-        <StyledMentionsInput
-          value={chat}
-          onChange={onChangeChat}
-          onKeyDown={onKeyDownEnter}
-          inputRef={mentionsInputRef}
-          allowSuggestionsAboveCursor
-        >
-          <Mention
-            data={
-              (Array.isArray(memberData) &&
-                memberData?.map((v: IUser) => {
-                  return { id: v.id, display: v.nickname };
-                })) ||
-              []
-            }
-            trigger="@"
-            appendSpaceOnAdd
-            renderSuggestion={renderSuggestion}
-          ></Mention>
-        </StyledMentionsInput>
+    const renderSuggestion = useCallback(
+      (
+        suggestion: SuggestionDataItem,
+        search: string,
+        highlightedDisplay: ReactNode,
+        index: number,
+        focused: boolean
+      ): ReactNode => {
+        if (!memberData) return;
+        return (
+          <StyledEachMention focus={focused}>
+            <img
+              src={gravatar.url(memberData[index].email, {
+                s: "20",
+                d: "retro",
+              })}
+              alt={memberData[index].nickname}
+            />
+            <span>{highlightedDisplay}</span>
+          </StyledEachMention>
+        );
+      },
+      [memberData]
+    );
 
-        <button type="submit" disabled={!chat.trim()}>
-          ENTER
-        </button>
-      </StyledForm>
-    </StyledChatArea>
-  );
-};
+    return (
+      <StyledChatArea>
+        <StyledForm onSubmit={onSubmitForm}>
+          <StyledMentionsInput
+            value={chat}
+            onChange={onChangeChat}
+            onKeyDown={onKeyDownEnter}
+            inputRef={mentionsInputRef}
+            allowSuggestionsAboveCursor
+          >
+            <Mention
+              data={
+                (Array.isArray(memberData) &&
+                  memberData?.map((v: IUser) => {
+                    return { id: v.id, display: v.nickname };
+                  })) ||
+                []
+              }
+              trigger="@"
+              appendSpaceOnAdd
+              renderSuggestion={renderSuggestion}
+            ></Mention>
+          </StyledMentionsInput>
+
+          <button type="submit" disabled={!chat.trim()}>
+            ENTER
+          </button>
+        </StyledForm>
+      </StyledChatArea>
+    );
+  }
+);
 
 export const StyledChatArea = styled.div`
   display: flex;

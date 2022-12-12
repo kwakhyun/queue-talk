@@ -21,7 +21,7 @@ export const CreateTalkspace: FC<IProps> = ({
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput("");
 
   const { data: userData, mutate } = useSWR(
-    "http://localhost:3095/api/users",
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
     fetcher
   );
 
@@ -32,7 +32,7 @@ export const CreateTalkspace: FC<IProps> = ({
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
-          "http://localhost:3095/api/workspaces",
+          "${process.env.REACT_APP_SERVER_URL}/api/workspaces",
           {
             workspace: newTalkspace,
             url: newUrl,

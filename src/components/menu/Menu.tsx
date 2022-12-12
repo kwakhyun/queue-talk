@@ -1,5 +1,5 @@
+import { CSSProperties, FC, memo, ReactNode, useCallback } from "react";
 import styled from "@emotion/styled";
-import { CSSProperties, FC, ReactNode, useCallback } from "react";
 
 interface IProps {
   children?: ReactNode;
@@ -9,30 +9,31 @@ interface IProps {
   closeButton?: boolean;
 }
 
-export const Menu: FC<IProps> = ({
-  children,
-  style,
-  show,
-  onCloseModal,
-  closeButton,
-}) => {
-  const stopPropagetion = useCallback((e: { stopPropagation: () => void }) => {
-    e.stopPropagation();
-  }, []);
+export const Menu: FC<IProps> = memo(
+  ({ children, style, show, onCloseModal, closeButton }) => {
+    const stopPropagetion = useCallback(
+      (e: { stopPropagation: () => void }) => {
+        e.stopPropagation();
+      },
+      []
+    );
 
-  if (!show) return null;
+    if (!show) return null;
 
-  return (
-    <StyledUserMenu onClick={onCloseModal}>
-      <div style={style} onClick={stopPropagetion}>
-        {closeButton && (
-          <StyledCloseButton onClick={onCloseModal}>&times;</StyledCloseButton>
-        )}
-        {children}
-      </div>
-    </StyledUserMenu>
-  );
-};
+    return (
+      <StyledUserMenu onClick={onCloseModal}>
+        <div style={style} onClick={stopPropagetion}>
+          {closeButton && (
+            <StyledCloseButton onClick={onCloseModal}>
+              &times;
+            </StyledCloseButton>
+          )}
+          {children}
+        </div>
+      </StyledUserMenu>
+    );
+  }
+);
 
 Menu.defaultProps = {
   closeButton: true,

@@ -1,18 +1,22 @@
-import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
+import styled from "@emotion/styled";
+
 import useSWR from "swr";
 import { IChannel } from "../typings/db";
 import { fetcher } from "../utils/fetcher";
 
-export const ChannelList = () => {
+export const ChannelList = memo(() => {
   const { talkspace } = useParams<{ talkspace: string }>();
   const [channelCollapse, setChannelCollapse] = useState(true);
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
+    fetcher
+  );
   const { data: channelData } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels`
       : null,
     fetcher
   );
@@ -47,7 +51,7 @@ export const ChannelList = () => {
       </div>
     </>
   );
-};
+});
 
 export const StyledCollapseButton = styled.button<{ collapse: boolean }>`
   background: transparent;

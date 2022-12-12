@@ -1,8 +1,10 @@
+import { FC, memo, RefObject, useCallback } from "react";
 import styled from "@emotion/styled";
-import { FC, RefObject, useCallback } from "react";
-import { IChat, IDM } from "../../typings/db";
-import { Chat } from "./Chat";
+
 import { positionValues, Scrollbars } from "react-custom-scrollbars";
+
+import { Chat } from "./Chat";
+import { IChat, IDM } from "../../typings/db";
 
 interface IPorps {
   chatSections: { [key: string]: (IDM | IChat)[] };
@@ -13,47 +15,44 @@ interface IPorps {
   isLast: boolean | undefined;
 }
 
-export const ChatContent: FC<IPorps> = ({
-  chatSections,
-  scrollberRef,
-  setSize,
-  isLast,
-}) => {
-  const onScroll = useCallback(
-    (values: positionValues) => {
-      if (values.scrollTop === 0 && !isLast) {
-        setSize((prevSize) => prevSize + 1).then(() => {
-          scrollberRef.current?.scrollTop(
-            scrollberRef.current?.getScrollHeight() - values.scrollHeight
-          );
-        });
-      }
-    },
-    [isLast, setSize, scrollberRef]
-  );
-  console.log(chatSections);
+export const ChatContent: FC<IPorps> = memo(
+  ({ chatSections, scrollberRef, setSize, isLast }) => {
+    const onScroll = useCallback(
+      (values: positionValues) => {
+        if (values.scrollTop === 0 && !isLast) {
+          setSize((prevSize) => prevSize + 1).then(() => {
+            scrollberRef.current?.scrollTop(
+              scrollberRef.current?.getScrollHeight() - values.scrollHeight
+            );
+          });
+        }
+      },
+      [isLast, setSize, scrollberRef]
+    );
+    console.log(chatSections);
 
-  return (
-    <StyledChatZone>
-      <Scrollbars autoHide ref={scrollberRef} onScrollFrame={onScroll}>
-        {Object.entries(chatSections).map(([date, chats]) => {
-          return (
-            <StyledSection key={date}>
-              <StyledStickyHeader>
-                <button>{date}</button>
-              </StyledStickyHeader>
-              {chats
-                // ?.sort((a: IDM, b: IDM) => a.id - b.id)
-                ?.map((chat) => {
-                  return <Chat key={chat.id} data={chat} />;
-                })}
-            </StyledSection>
-          );
-        })}
-      </Scrollbars>
-    </StyledChatZone>
-  );
-};
+    return (
+      <StyledChatZone>
+        <Scrollbars autoHide ref={scrollberRef} onScrollFrame={onScroll}>
+          {Object.entries(chatSections).map(([date, chats]) => {
+            return (
+              <StyledSection key={date}>
+                <StyledStickyHeader>
+                  <button>{date}</button>
+                </StyledStickyHeader>
+                {chats
+                  // ?.sort((a: IDM, b: IDM) => a.id - b.id)
+                  ?.map((chat) => {
+                    return <Chat key={chat.id} data={chat} />;
+                  })}
+              </StyledSection>
+            );
+          })}
+        </Scrollbars>
+      </StyledChatZone>
+    );
+  }
+);
 
 export const StyledChatZone = styled.div`
   width: 100%;

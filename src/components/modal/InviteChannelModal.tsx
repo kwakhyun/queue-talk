@@ -24,10 +24,10 @@ export const InviteChannelModal: FC<IProps> = ({
   }>();
   const [inviteMember, onChangeInviteMember, setInviteMember] = useInput("");
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(`${process.env.REACT_APP_SERVER_URL}/api/users`, fetcher);
   const { mutate: memberMutate } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/members`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/members`
       : null,
     fetcher
   );
@@ -38,7 +38,7 @@ export const InviteChannelModal: FC<IProps> = ({
       if (!inviteMember || !inviteMember.trim()) return;
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/members`,
+          `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels/${channel}/members`,
           {
             email: inviteMember,
           },

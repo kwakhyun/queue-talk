@@ -1,15 +1,21 @@
-import styled from "@emotion/styled";
-import axios from "axios";
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import styled from "@emotion/styled";
+
+import axios from "axios";
 import useSWR from "swr";
+
 import { useInput } from "../hooks/useInput";
 import { fetcher } from "../utils/fetcher";
 
-export const Join = () => {
-  const { data, error } = useSWR("http://localhost:3095/api/users", fetcher, {
-    dedupingInterval: 5000,
-  });
+export const Join = memo(() => {
+  const { data, error } = useSWR(
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
+    fetcher,
+    {
+      dedupingInterval: 5000,
+    }
+  );
 
   const navigate = useNavigate();
   const [email, onChangeEmail] = useInput("");
@@ -25,7 +31,7 @@ export const Join = () => {
         return setMismatchError(true);
       }
       axios
-        .post("http://localhost:3095/api/users", {
+        .post(`${process.env.REACT_APP_SERVER_URL}/api/users`, {
           email,
           nickname,
           password,
@@ -93,7 +99,7 @@ export const Join = () => {
       </div>
     </StyledUserContainer>
   );
-};
+});
 
 export const StyledUserContainer = styled.div`
   display: flex;

@@ -21,10 +21,10 @@ export const CreateChannelModal: FC<IProps> = ({
   const { talkspace } = useParams<{ talkspace: string }>();
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput("");
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(`${process.env.REACT_APP_SERVER_URL}/api/users`, fetcher);
   const { data: channelData, mutate: channelMutate } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/channels`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels`
       : null,
     fetcher
   );
@@ -35,7 +35,7 @@ export const CreateChannelModal: FC<IProps> = ({
       if (!newChannel || !newChannel.trim()) return;
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${talkspace}/channels`,
+          `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels`,
           {
             name: newChannel,
           },

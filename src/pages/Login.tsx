@@ -1,14 +1,16 @@
-import axios from "axios";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
-import { useInput } from "../hooks/useInput";
-import { fetcher } from "../utils/fetcher";
 import { StyledUserContainer } from "./Join";
 
-export const Login = () => {
+import axios from "axios";
+import useSWR from "swr";
+
+import { useInput } from "../hooks/useInput";
+import { fetcher } from "../utils/fetcher";
+
+export const Login = memo(() => {
   const { data, error, mutate } = useSWR(
-    "http://localhost:3095/api/users",
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
     fetcher
   );
 
@@ -21,7 +23,7 @@ export const Login = () => {
       e.preventDefault();
       axios
         .post(
-          "http://localhost:3095/api/users/login",
+          `${process.env.REACT_APP_SERVER_URL}/api/users/login`,
           {
             email,
             password,
@@ -78,4 +80,4 @@ export const Login = () => {
       </form>
     </StyledUserContainer>
   );
-};
+});

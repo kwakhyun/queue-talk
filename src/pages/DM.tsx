@@ -1,30 +1,37 @@
-import styled from "@emotion/styled";
-import axios from "axios";
-import gravatar from "gravatar";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Scrollbars from "react-custom-scrollbars";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import useSWR from "swr";
-import useSWRInfinite from "swr/infinite";
+import styled from "@emotion/styled";
+
+import { RiDragDropLine } from "react-icons/ri";
+import Scrollbars from "react-custom-scrollbars";
+import gravatar from "gravatar";
+
 import { ChatContent } from "../components/chat/ChatContent";
 import { ChatInputBox } from "../components/chat/ChatInputBox";
+
+import axios from "axios";
+import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
+
 import { useInput } from "../hooks/useInput";
 import { useSocket } from "../hooks/useSocket";
 import { IDM } from "../typings/db";
 import { dateSection } from "../utils/dateSection";
 import { fetcher } from "../utils/fetcher";
-import { RiDragDropLine } from "react-icons/ri";
 
-export const DM = () => {
+export const DM = memo(() => {
   const { talkspace, id } = useParams<{ talkspace: string; id: string }>();
   const [chat, onChangeChat, setChat] = useInput("");
   const scrollberRef = useRef<Scrollbars>(null);
   const [socket] = useSocket(talkspace);
   const [dragOver, setDragOver] = useState(false);
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
+    fetcher
+  );
   const { data: memberData } = useSWR(
-    `http://localhost:3095/api/workspaces/${talkspace}/users/${id}`,
+    `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/users/${id}`,
     fetcher
   );
 
@@ -34,7 +41,9 @@ export const DM = () => {
     setSize,
   } = useSWRInfinite<IDM[]>(
     (index) =>
-      `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/chats?perPage=20&page=${
+      `${
+        process.env.REACT_APP_SERVER_URL
+      }/api/workspaces/${talkspace}/dms/${id}/chats?perPage=20&page=${
         index + 1
       }`,
     fetcher
@@ -66,7 +75,7 @@ export const DM = () => {
         });
         axios
           .post(
-            `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/chats`,
+            `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/dms/${id}/chats`,
             {
               content: chat,
             },
@@ -146,7 +155,7 @@ export const DM = () => {
       }
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${talkspace}/dms/${id}/images`,
+          `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/dms/${id}/images`,
           formData,
           {
             withCredentials: true,
@@ -194,7 +203,7 @@ export const DM = () => {
       )}
     </StyledContainer>
   );
-};
+});
 
 export const StyledContainer = styled.div`
   display: flex;

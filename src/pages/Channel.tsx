@@ -1,21 +1,25 @@
-import styled from "@emotion/styled";
-import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Scrollbars from "react-custom-scrollbars";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import useSWR from "swr";
-import useSWRInfinite from "swr/infinite";
+import styled from "@emotion/styled";
+
+import { RiDragDropLine } from "react-icons/ri";
+import Scrollbars from "react-custom-scrollbars";
+
 import { ChatContent } from "../components/chat/ChatContent";
 import { ChatInputBox } from "../components/chat/ChatInputBox";
 import { InviteChannelModal } from "../components/modal/InviteChannelModal";
+
+import axios from "axios";
+import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
+
 import { useInput } from "../hooks/useInput";
 import { useSocket } from "../hooks/useSocket";
 import { IChannel, IChat } from "../typings/db";
 import { dateSection } from "../utils/dateSection";
 import { fetcher } from "../utils/fetcher";
-import { RiDragDropLine } from "react-icons/ri";
 
-export const Channel = () => {
+export const Channel = memo(() => {
   const { talkspace, channel } = useParams<{
     talkspace: string;
     channel: string;
@@ -26,15 +30,18 @@ export const Channel = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
+    fetcher
+  );
   const { data: channelMemberData } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/members`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels/${channel}/members`
       : null,
     fetcher
   );
   const { data: channelData } = useSWR<IChannel>(
-    `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}`,
+    `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels/${channel}`,
     fetcher
   );
   const {
@@ -43,7 +50,9 @@ export const Channel = () => {
     setSize,
   } = useSWRInfinite<IChat[]>(
     (index) =>
-      `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/chats?perPage=20&page=${
+      `${
+        process.env.REACT_APP_SERVER_URL
+      }/api/workspaces/${talkspace}/channels/${channel}/chats?perPage=20&page=${
         index + 1
       }`,
     fetcher
@@ -75,7 +84,7 @@ export const Channel = () => {
         });
         axios
           .post(
-            `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/chats`,
+            `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels/${channel}/chats`,
             {
               content: chat,
             },
@@ -172,7 +181,7 @@ export const Channel = () => {
       }
       axios
         .post(
-          `http://localhost:3095/api/workspaces/${talkspace}/channels/${channel}/images`,
+          `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/channels/${channel}/images`,
           formData,
           {
             withCredentials: true,
@@ -229,7 +238,7 @@ export const Channel = () => {
       )}
     </StyledContainer>
   );
-};
+});
 
 export const StyledContainer = styled.div`
   display: flex;

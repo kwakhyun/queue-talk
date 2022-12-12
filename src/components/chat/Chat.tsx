@@ -1,10 +1,12 @@
-import styled from "@emotion/styled";
 import { FC, memo, useMemo } from "react";
-import { IChat, IDM } from "../../typings/db";
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "@emotion/styled";
+
 import gravatar from "gravatar";
 import dayjs from "dayjs";
 import regexifyString from "regexify-string";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { IChat, IDM } from "../../typings/db";
 
 interface IPorps {
   data: IDM | IChat;
@@ -19,7 +21,7 @@ export const Chat: FC<IPorps> = memo(({ data }) => {
     () =>
       data.content.startsWith("uploads\\") ? (
         <img
-          src={`http://localhost:3095/${data.content}`}
+          src={`${process.env.REACT_APP_SERVER_URL}/${data.content}`}
           alt={data.content}
           style={{ maxWidth: 500 }}
         />

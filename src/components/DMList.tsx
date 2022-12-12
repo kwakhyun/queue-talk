@@ -1,22 +1,26 @@
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
+import { StyledCollapseButton } from "./ChannelList";
+
 import useSWR from "swr";
 import { useSocket } from "../hooks/useSocket";
 import { IUserWithOnline } from "../typings/db";
 import { fetcher } from "../utils/fetcher";
-import { StyledCollapseButton } from "./ChannelList";
 
-export const DMList = () => {
+export const DMList = memo(() => {
   const { talkspace } = useParams<{ talkspace: string }>();
   const [socket] = useSocket(talkspace);
 
   const [channelCollapse, setChannelCollapse] = useState(true);
   const [onlineList, setOnlineList] = useState<number[]>([]);
 
-  const { data: userData } = useSWR("http://localhost:3095/api/users", fetcher);
+  const { data: userData } = useSWR(
+    `${process.env.REACT_APP_SERVER_URL}/api/users`,
+    fetcher
+  );
   const { data: memberData } = useSWR(
     userData
-      ? `http://localhost:3095/api/workspaces/${talkspace}/members`
+      ? `${process.env.REACT_APP_SERVER_URL}/api/workspaces/${talkspace}/members`
       : null,
     fetcher
   );
@@ -67,4 +71,4 @@ export const DMList = () => {
       </div>
     </div>
   );
-};
+});

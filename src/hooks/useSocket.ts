@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 
 const socket: { [key: string]: Socket } = {};
 
-const baseUrl = "http://localhost:3095";
+const baseUrl = `${process.env.REACT_APP_SERVER_URL}`;
 
 export const useSocket = (
   talkspace?: string
