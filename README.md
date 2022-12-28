@@ -2,8 +2,8 @@
 ![queue-talk-logo-16-9](https://user-images.githubusercontent.com/73919235/206880476-b24809a1-bdcb-4057-ae35-183570730aa0.png)
 
 ### 프로젝트 소개
-- TypeScript를 사용해 JavaScript 정적 타입을 분석했습니다.
-- 커스텀 Hooks를 만들어 코드의 중복을 줄였습니다.
+- TypeScript를 사용해 코드의 가독성을 높이고, 디버깅 시간을 줄였습니다.
+- 커스텀 Hooks를 만들어 사용해 코드의 중복을 줄였습니다.
 - React.memo와 useCallback을 사용해 렌더링을 최적화했습니다.
 - SWR 라이브러리를 사용해 컴포넌트 단위로 서버 데이터를 관리했습니다.
 - 채팅 기능 구현에 Socket.IO 라이브러리를 채택했습니다.

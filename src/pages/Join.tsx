@@ -58,7 +58,7 @@ export const Join = memo(() => {
 
   return (
     <StyledUserContainer>
-      <h1>OurTalk</h1>
+      <h1>QueueTalk</h1>
       <form onSubmit={onSubmit}>
         <input
           type="email"

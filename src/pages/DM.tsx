@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import {
+  DragEventHandler,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useParams } from "react-router-dom";
 import styled from "@emotion/styled";
 
@@ -133,14 +140,16 @@ export const DM = memo(() => {
 
   const chatSections = dateSection(chatData ? chatData.flat().reverse() : []);
 
-  const onDrop = useCallback(
-    (e: any) => {
+  const onDrop = useCallback<DragEventHandler<HTMLDivElement>>(
+    (e) => {
       e.preventDefault();
       const formData = new FormData();
       if (e.dataTransfer.items) {
         for (let i = 0; i < e.dataTransfer.items.length; i++) {
           if (e.dataTransfer.items[i].kind === "file") {
             const file = e.dataTransfer.items[i].getAsFile();
+
+            if (!file) return;
             console.log("... file[" + i + "].name = " + file.name);
             formData.append("image", file);
           }
@@ -169,10 +178,13 @@ export const DM = memo(() => {
     [talkspace, id, chatMutate, chatData]
   );
 
-  const onDragOver = useCallback((e: any) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
+  const onDragOver = useCallback<DragEventHandler<HTMLDivElement>>(
+    (e) => {
+      e.preventDefault();
+      setDragOver(true);
+    },
+    []
+  );
 
   if (!userData || !memberData) return null;
 

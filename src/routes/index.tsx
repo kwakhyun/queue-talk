@@ -3,7 +3,7 @@ import { Talkspace } from "../components/layouts/Talkspace";
 import { Join } from "../pages/Join";
 import { Login } from "../pages/Login";
 
-export const Router = () => {
+export const PageRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
