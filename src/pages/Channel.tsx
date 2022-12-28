@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import {
+  DragEventHandler,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useParams } from "react-router-dom";
 import styled from "@emotion/styled";
 
@@ -159,14 +166,16 @@ export const Channel = memo(() => {
     setShowInviteChannelModal(false);
   }, []);
 
-  const onDrop = useCallback(
-    (e: any) => {
+  const onDrop = useCallback<DragEventHandler<HTMLDivElement>>(
+    (e) => {
       e.preventDefault();
       const formData = new FormData();
       if (e.dataTransfer.items) {
         for (let i = 0; i < e.dataTransfer.items.length; i++) {
           if (e.dataTransfer.items[i].kind === "file") {
             const file = e.dataTransfer.items[i].getAsFile();
+
+            if (!file) return;
             console.log("... file[" + i + "].name = " + file.name);
             formData.append("image", file);
           }
@@ -195,10 +204,13 @@ export const Channel = memo(() => {
     [talkspace, channel, chatMutate, chatData]
   );
 
-  const onDragOver = useCallback((e: any) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
+  const onDragOver = useCallback<DragEventHandler<HTMLDivElement>>(
+    (e) => {
+      e.preventDefault();
+      setDragOver(true);
+    },
+    []
+  );
 
   if (!userData) return null;
 
